@@ -6,7 +6,8 @@ repository. `CLAUDE.md` is a symlink to it.
 ## What this is
 
 **giglab.dev** is an auto-updating board of Lord Gig's current and upcoming
-projects and their statuses. It is also the **testbed for containers in
+projects and their statuses, with a `/status` subpage tracking live fleet
+service health (Gatus, monitors as code). It is also the **testbed for containers in
 gigpkgs' inputMan**: this flake defines its own container, gigpkgs discovers
 it, and spacedock runs it.
 

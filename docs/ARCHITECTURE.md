@@ -94,12 +94,34 @@ The pattern follows the kottonmouth keeper:
     signal.
   - gigpkgs `news/entries`: what shipped and at which version (the gignews
     feed).
-  - status.gignsky.com (Gatus): live up/down for projects that are services.
+  - Gatus (see §3.7): live up/down for projects that are services.
 - Uses a fine-grained, read-only GitHub token from an env file (sops on
   spacedock). It has no write access to anything.
 - Config comes from the environment, following the keeper's table style. It
   binds `127.0.0.1:8800` by default, and the host front door is the only way
   in.
+
+### 3.7 Status page — `/status`
+
+A subpage that tracks **live service health across the fleet**: an uptime
+board, as distinct from the curated *project* statuses on the index. It is
+the intended successor to the hand-kept Uptime Kuma at status.gignsky.com,
+which goes stale.
+
+- **Monitors are config-as-code.** They are rendered from the Nix fleet
+  attrset in dotfiles, one source of truth, never maintained in a web UI. A
+  service added to a host gains its monitor on the next rebuild.
+- **Checker:** Gatus, its config rendered from Nix. The Rust server reads
+  Gatus's API, stores history in SQLite, and serves `/api/status`. The page
+  is an Astro route with a build-time snapshot, then live updates, as with
+  every other page.
+- **Watch from more than one place.** A checker on spacedock alone goes dark
+  with the host it reports on. Plan a **second Gatus node on memory-alpha**,
+  with the hosts watching each other, and have the page merge both views.
+- **Projects tie in.** A registry entry may name its monitor(s), so a
+  service's project card shows a live up/down badge drawn from the same data.
+- **Honest outage limit:** while spacedock is down, `/status` is down too.
+  Cloudflare caching (§5) later, or a tiny off-host mirror, would cover that.
 
 ### 3.5 Container spec — `nix/container-config.nix`
 
@@ -200,6 +222,7 @@ this repo.
 | Downtime | Accept for now; Cloudflare caching is a future option |
 | Update channel | Follow **gigpkgs-unstable**, like dotfiles follows gigpkgs |
 | GitHub Action | Willing to attempt (Phase 4) |
+| Status tracking | `/status` subpage: fleet uptime board, monitors as code (§3.7) |
 | Container spec format | The dot-spacedock `lib/container-config` pattern: one `.nix` file of fill-in items |
 
 ## 7. Open items
@@ -216,6 +239,9 @@ this repo.
 5. **Registry format.** Typst metadata in `.typ`, or TOML beside each `.typ`.
 6. **Auto-upgrade cadence** on spacedock, and whether it applies only to the
    `gigpkgs-unstable` input or to the whole host.
+7. **Status page scope.** Which services are monitored, whether
+   status.gignsky.com redirects to `giglab.dev/status` once it is live, and
+   whether memory-alpha's second checker is in from the start.
 
 ## 8. Phases
 
@@ -223,8 +249,8 @@ this repo.
 |---|---|
 | 0 | This plan · `CLAUDE.md` |
 | 1 | Flake + devShell + roll-flow gates; Astro skeleton; Typst route proven; registry with a few real entries; static build |
-| 2 | Rust server + poller + SQLite; OCI image; `nix/container-config.nix` + `containers.<sys>.giglab`; **inputMan container discovery in gigpkgs** |
-| 3 | spacedock: `gigpkgs-unstable` input, `fromInputs.giglab`, sops env, nginx front door + ACME, auto-upgrade |
+| 2 | Rust server + poller + SQLite; `/status` page over Gatus; OCI image; `nix/container-config.nix` + `containers.<sys>.giglab`; **inputMan container discovery in gigpkgs** |
+| 3 | spacedock: Gatus with Nix-rendered monitors (+ memory-alpha node); `gigpkgs-unstable` input, `fromInputs.giglab`, sops env, nginx front door + ACME, auto-upgrade |
 | 4 | Optional `repository_dispatch` Action; demo-site convention; Cloudflare caching if wanted |
 
 ## References
