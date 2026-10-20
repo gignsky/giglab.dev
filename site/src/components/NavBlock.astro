@@ -1,0 +1,45 @@
+---
+interface Props {
+  href: string;
+  index: string;
+  label: string;
+  external?: boolean;
+}
+
+const { href, index, label, external = false } = Astro.props;
+---
+
+<a
+  class="nav-block"
+  href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>
+  {index} · {label}{external ? ' ↗' : ''}
+</a>
+
+<style>
+  .nav-block {
+    flex: 1 1 160px;
+    min-height: 48px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-4);
+    background: var(--panel);
+    border: 1px solid var(--muted);
+    border-radius: var(--radius-sm);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .nav-block:hover {
+    border-color: var(--signal);
+    color: var(--ink);
+  }
+</style>

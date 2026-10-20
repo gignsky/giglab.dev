@@ -1,0 +1,45 @@
+---
+interface Props {
+  name: string;
+  state: 'awaiting';
+}
+
+const { name } = Astro.props;
+---
+
+<div class="host-cell">
+  <span class="name">{name}</span>
+  <span class="status">○ AWAITING SIGNAL</span>
+</div>
+
+<style>
+  .host-cell {
+    flex: 1 1 240px;
+    min-height: 56px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 0 var(--space-4);
+    background: var(--hull);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+  }
+
+  .name {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  .status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+</style>

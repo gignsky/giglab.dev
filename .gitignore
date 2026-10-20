@@ -1,0 +1,11 @@
+# Astro / Node (site/). Also ignore these at the repo root: astro/vite leave
+# stray state there if a command is ever run with cwd outside site/.
+node_modules/
+.astro/
+site/node_modules/
+site/dist/
+site/.astro/
+
+# Nix
+result
+result-*

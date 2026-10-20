@@ -1,0 +1,42 @@
+---
+interface Props {
+  label: string;
+  value: string;
+  fill: 'beacon' | 'ink';
+}
+
+const { label, value, fill } = Astro.props;
+const textVar = fill === 'ink' ? 'var(--void)' : 'var(--on-signal)';
+---
+
+<div class="counter" style={`background: var(--${fill}); color: ${textVar};`}>
+  <span class="label">{label}</span>
+  <span class="value">{value}</span>
+</div>
+
+<style>
+  .counter {
+    min-height: 106px;
+    box-sizing: border-box;
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .value {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1;
+  }
+</style>

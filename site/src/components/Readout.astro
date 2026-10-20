@@ -1,0 +1,124 @@
+---
+import { statusStyle, type ProjectStatus } from '../lib/status';
+
+interface Props {
+  slug: string;
+  code: string;
+  title: string;
+  summary: string;
+  status: Exclude<ProjectStatus, 'archived'>;
+  visibility: 'public' | 'private';
+}
+
+const { slug, code, title, summary, status, visibility } = Astro.props;
+const style = statusStyle(status);
+
+// Private repos never get live data; public ones just lack a poller yet (server/, Phase 2).
+const liveValue = visibility === 'private' ? '—' : 'AWAITING TRANSMISSION';
+const note =
+  visibility === 'private'
+    ? 'This repo is private — curated details only, never live-fetched.'
+    : 'Live readings arrive when the board comes online.';
+---
+
+<section
+  id={`readout-${slug}`}
+  class="readout-panel"
+  data-slug={slug}
+  data-status={status}
+>
+  <span class="label">READOUT · {code}</span>
+  <p class="name">{title}</p>
+  <p class="blurb">{summary}</p>
+  <span class="status-line" style={`color: ${style.border};`}>{style.glyph} {style.word}</span>
+  <dl>
+    <dt>LAST PUSH</dt>
+    <dd>{liveValue}</dd>
+    <dt>ROLLS</dt>
+    <dd>{liveValue}</dd>
+    <dt>RELEASE</dt>
+    <dd>{liveValue}</dd>
+  </dl>
+  <p class="note">{note}</p>
+</section>
+
+<style>
+  .readout-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .readout-panel[hidden] {
+    display: none;
+  }
+
+  /* Only draws between panels that are both visible -- never above the one panel JS leaves showing. */
+  .readout-panel:not([hidden]) ~ .readout-panel:not([hidden]) {
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 44px;
+    overflow-wrap: anywhere;
+  }
+
+  .blurb {
+    margin: 0;
+    font-size: 18px;
+    line-height: 28px;
+    color: var(--muted);
+  }
+
+  .status-line {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--hairline);
+    padding-top: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--beacon);
+  }
+
+  .note {
+    margin: 0;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--muted);
+  }
+</style>

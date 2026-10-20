@@ -1,0 +1,282 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import NameSlab from '../components/NameSlab.astro';
+import Counter from '../components/Counter.astro';
+import NavBlock from '../components/NavBlock.astro';
+import Tile from '../components/Tile.astro';
+import Readout from '../components/Readout.astro';
+import HostCell from '../components/HostCell.astro';
+import { codeOrdinal, type ProjectStatus } from '../lib/status';
+
+type BoardStatus = Exclude<ProjectStatus, 'archived'>;
+
+// `archived` is left off the board; the type predicate narrows Tile/Readout's prop type accordingly.
+const allProjects = await getCollection('projects');
+const boardEntries = allProjects
+  .filter(
+    (entry): entry is typeof entry & { data: { status: BoardStatus } } =>
+      entry.data.status !== 'archived',
+  )
+  .sort((a, b) => codeOrdinal(a.data.code) - codeOrdinal(b.data.code));
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const total = boardEntries.length;
+const inFlight = boardEntries.filter((entry) => entry.data.status === 'active').length;
+
+// Two Gatus nodes are planned (docs/ARCHITECTURE.md §3.7); /status doesn't exist yet.
+const hosts = ['spacedock', 'memory-alpha'];
+---
+
+<Base
+  title="giglab.dev"
+  description="The annunciator panel for the Realm's projects — every current and upcoming build, lit when it's under way."
+>
+  <div class="page">
+    <header class="row header-row">
+      <NameSlab kicker="ANNUNCIATOR · PANEL 01 · FIRST LIGHT" />
+      <div class="counter-block">
+        <Counter label="IN FLIGHT" value={pad2(inFlight)} fill="beacon" />
+        <Counter label="ON THE BOARD" value={pad2(total)} fill="ink" />
+        <p class="tagline-cell">Projects in flight, the fleet on watch.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Primary" class="row nav-row">
+      <NavBlock href="#board" index="01" label="BOARD" />
+      <NavBlock href="#ribbon" index="02" label="STATUS" />
+      <NavBlock href="#readout" index="03" label="WRITE-UPS" />
+      <NavBlock href="https://github.com/gignsky" index="04" label="GITHUB" external />
+    </nav>
+
+    <main class="row main-row">
+      <section id="board" aria-labelledby="board-h" class="board">
+        <div class="board-header">
+          <h2 id="board-h" class="section-label">THE BOARD · PRESS A TILE FOR ITS READOUT</h2>
+          <span class="section-label">LIT = UNDER WAY · DARK = CHARTED</span>
+        </div>
+        <div class="board-grid">
+          {
+            total === 0 ? (
+              <div class="dashed-cell board-dashed">○ NOTHING CHARTED YET</div>
+            ) : (
+              boardEntries.map((entry) => (
+                <Tile
+                  slug={entry.id}
+                  code={entry.data.code}
+                  title={entry.data.title}
+                  status={entry.data.status}
+                />
+              ))
+            )
+          }
+        </div>
+      </section>
+
+      <section id="readout" aria-live="polite" aria-labelledby="readout-h" class="readout-section">
+        <h2 id="readout-h" class="visually-hidden">Readout — press a tile for its detail</h2>
+        {
+          total === 0 ? (
+            <p class="note">No readout — nothing is charted yet.</p>
+          ) : (
+            boardEntries.map((entry) => (
+              <Readout
+                slug={entry.id}
+                code={entry.data.code}
+                title={entry.data.title}
+                summary={entry.data.summary}
+                status={entry.data.status}
+                visibility={entry.data.visibility}
+              />
+            ))
+          )
+        }
+      </section>
+    </main>
+
+    <section id="ribbon" aria-labelledby="ribbon-h" class="row ribbon-row">
+      <h2 id="ribbon-h" class="fleet-label">FLEET</h2>
+      {hosts.map((name) => <HostCell name={name} state="awaiting" />)}
+      <div class="dashed-cell ribbon-dashed">/STATUS COMES ONLINE NEXT</div>
+    </section>
+
+    <footer class="row footer-row">
+      <span>giglab.dev · Maxwell Rupp · served from spacedock</span>
+      <span>Nix · Astro · Rust · Typst</span>
+    </footer>
+  </div>
+
+  <script src="../scripts/enhance.js"></script>
+</Base>
+
+<style>
+  .page {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: var(--space-4);
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--font-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .header-row {
+    align-items: stretch;
+  }
+
+  .counter-block {
+    flex: 1 1 280px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .tagline-cell {
+    grid-column: span 2;
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--muted);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    box-sizing: border-box;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 30px;
+    color: var(--signal);
+  }
+
+  .main-row {
+    align-items: stretch;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .board {
+    flex: 999 1 640px;
+    min-width: 0;
+    box-sizing: border-box;
+    background: var(--hull);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .board-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-2);
+  }
+
+  .readout-section {
+    flex: 1 1 320px;
+    min-width: 0;
+    box-sizing: border-box;
+    background: var(--panel);
+    border: 1px solid var(--muted);
+    border-radius: var(--radius-sm);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .section-label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .dashed-cell {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 var(--space-4);
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .board-dashed {
+    min-height: 148px;
+  }
+
+  .ribbon-dashed {
+    flex: 1 1 240px;
+    min-height: 56px;
+  }
+
+  .fleet-label {
+    flex: 0 0 auto;
+    margin: 0;
+    min-height: 56px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-4);
+    background: var(--ink);
+    color: var(--void);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .footer-row {
+    justify-content: space-between;
+    gap: var(--space-2) 24px;
+    padding: var(--space-2) 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .note {
+    margin: 0;
+    font-style: italic;
+    color: var(--muted);
+  }
+</style>

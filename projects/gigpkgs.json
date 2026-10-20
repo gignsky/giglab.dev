@@ -1,0 +1,8 @@
+{
+  "code": "GP-01",
+  "title": "gigpkgs",
+  "summary": "A Nix package set, and inputMan to feed it.",
+  "status": "active",
+  "repo": "gignsky/gigpkgs",
+  "visibility": "public"
+}

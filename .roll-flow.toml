@@ -1,0 +1,106 @@
+# roll-flow config -- see github.com/gignsky/roll-flow/blob/main/docs/config.md
+#
+# Branch model: roll/N-MMDD-slug -> rolling -> master. Gates are `sh -c`
+# commands run from the repo root; any failure blocks `rf verify`,
+# `rf graduate` and `rf promote`. Run `rf` from inside `nix develop` once the
+# flake exists, so node/cargo/typst are on PATH for the gates.
+#
+# ┌──────────────────────────────────────────────────────────────────────────┐
+# │ ⚠  WARNING -- DORMANT GATES BELOW                                          │
+# │                                                                            │
+# │ The repo is at Phase 0 (docs only), so most gates are commented out: they  │
+# │ would fail against code that does not exist yet. Each block is labelled   │
+# │ with the phase (docs/ARCHITECTURE.md §8) that brings its subject into      │
+# │ being. THE ROLL THAT ADDS `flake.nix`, `site/` or `server/` MUST ALSO      │
+# │ UNCOMMENT THAT BLOCK, in both arrays. Until it does, that code merges to   │
+# │ rolling and master UNGATED.                                                 │
+# └──────────────────────────────────────────────────────────────────────────┘
+#
+# When a GitHub Actions check workflow is added (council pattern), make it run
+# exactly `rolling_to_main_gates`, so promoting locally and promoting through a
+# PR check the same things.
+
+config_version = 1
+repo_root = "/home/gig/local_repos/giglab.dev"
+rolling_branch = "rolling"
+stable_branch = "master"
+roll_prefix = "roll/"
+
+# Release flags. roll-flow's version gate and tags read the version from a
+# Cargo.toml at the REPO ROOT only. The plan puts the crate in `server/`, so
+# these are INERT (skipped silently) until either a root Cargo.toml with a
+# [package] exists, or the server crate is rooted here. Left on, as set, so
+# they take effect the moment that happens.
+version_gate = true
+tag_on_promote = true
+tag_on_graduate = true
+push_tag = true
+dev_versions = true
+
+mode = "manage"
+username = "gig"
+hosts = []
+
+# ── roll/* -> rolling: fast sanity. Cheap, no full builds. ──────────────────
+roll_to_rolling_gates = [
+    # ── Always on (Phase 0+) ──
+    # The plan and the agent guide exist, and CLAUDE.md still points at AGENTS.md.
+    "test -f docs/ARCHITECTURE.md",
+    "test -f AGENTS.md && test \"$(readlink CLAUDE.md)\" = AGENTS.md",
+    # No secrets in tracked files: private keys, sops age keys, GitHub tokens.
+    "! git grep -nIE 'BEGIN [A-Z ]*PRIVATE KEY|AGE-SECRET-KEY-1[0-9A-Z]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}' -- ':!.roll-flow.toml'",
+
+    # ── Phase 1: flake + Astro site (flake.nix / site/ landed 2026-10-20) ──
+    "nix flake check --no-build",
+    "npm --prefix site ci",
+    "npm --prefix site run build",
+
+    # ── ⚠ Phase 2: Rust server -- UNCOMMENT when server/ lands ──
+    # "cargo fmt --manifest-path server/Cargo.toml --all --check",
+    # "cargo clippy --manifest-path server/Cargo.toml --all-targets --locked -- -D warnings",
+    # "cargo test --manifest-path server/Cargo.toml --locked",
+
+    # ── ⚠ Phase 2: container spec -- UNCOMMENT when nix/container-config.nix lands ──
+    # The spec evaluates (what inputMan will read).
+    # "nix eval --json .#containers.x86_64-linux.giglab > /dev/null",
+]
+
+# ── rolling -> master: everything a release must survive. ───────────────────
+rolling_to_main_gates = [
+    # ── Always on (Phase 0+) ──
+    "test -f docs/ARCHITECTURE.md",
+    "test -f AGENTS.md && test \"$(readlink CLAUDE.md)\" = AGENTS.md",
+    "! git grep -nIE 'BEGIN [A-Z ]*PRIVATE KEY|AGE-SECRET-KEY-1[0-9A-Z]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}' -- ':!.roll-flow.toml'",
+
+    # ── Phase 1: flake + Astro site (flake.nix / site/ landed 2026-10-20) ──
+    "nix flake check --print-build-logs",
+    "npm --prefix site ci",
+    "npm --prefix site run check",
+    "npm --prefix site run build",
+    "test -f site/dist/index.html",
+    # packages.site / the Nix-built site doesn't exist yet (Phase 2) -- left
+    # commented until then.
+    # "test -f \"$(nix build .#site --no-link --print-out-paths)/index.html\"",
+
+    # ── ⚠ Phase 2: Rust server -- UNCOMMENT when server/ lands ──
+    # "cargo update --manifest-path server/Cargo.toml --workspace --locked",
+    # "cargo fmt --manifest-path server/Cargo.toml --all --check",
+    # "cargo clippy --manifest-path server/Cargo.toml --all-targets --locked -- -D warnings",
+    # "cargo build --manifest-path server/Cargo.toml --locked",
+    # "cargo test --manifest-path server/Cargo.toml --locked",
+
+    # ── ⚠ Phase 2: image + container spec -- UNCOMMENT when the image / spec land ──
+    # "nix build .#image --no-link --print-build-logs",
+    # "nix eval --json .#containers.x86_64-linux.giglab > /dev/null",
+    # Ground rule: the container publishes on loopback only (host nginx is the door).
+    # "nix eval --json .#containers.x86_64-linux.giglab.ports | grep -q '127.0.0.1:'",
+    # Ground rule: the spec holds no host facts -- no secret paths.
+    # "! grep -nE '/run/secrets|sops' nix/container-config.nix",
+]
+
+host_gates = []
+clean_protect = []
+pull_mode = "ff-only"
+lazygit_command = "lazygit"
+
+[host_active]
