@@ -168,8 +168,9 @@ this repo.
 ## 5. Front door — spacedock host
 
 - The **DDNS updater on memory-alpha** keeps `giglab.dev` pointed at the home
-  IP. The router forwards to spacedock. There is **no Cloudflare tunnel**.
-- A **host-level reverse proxy** owns the port. nginx is already enabled on
+  IP. The router forwards public **443** to spacedock **`:1776`**, the
+  front-door port. There is **no Cloudflare tunnel**.
+- A **host-level reverse proxy** owns `:1776` (TLS). nginx is already enabled on
   spacedock. It routes by `Host`:
   - `giglab.dev` (+ `www`) → the giglab container on `127.0.0.1:8800`
   - `<name>.giglab.dev` → **ad-hoc demo sites** on the host. This is how
@@ -183,7 +184,8 @@ this repo.
   acceptable for now. Later, Cloudflare caching can be layered on by
   orange-clouding the DDNS record, which does not need a tunnel. That only
   works if the public port is one Cloudflare proxies (443, 8443, 2053, 2083,
-  2087, 2096), which **8082 is not**.
+  2087, 2096). Cloudflare would therefore reach the origin on 443, which the
+  router already forwards to `:1776`.
 
 ## 6. Rulings (2026-10-20)
 
@@ -192,6 +194,7 @@ this repo.
 | Purpose | Auto-updating board of all current and upcoming projects with statuses; Typst for rich formatting |
 | Hosting | Container on spacedock |
 | Way in | DDNS (memory-alpha) → spacedock, no tunnel; giglab.dev also used for ad-hoc demo sites on spacedock |
+| Front-door port | **1776** on spacedock (host nginx, TLS); router forwards public 443 → 1776 |
 | Downtime | Accept for now; Cloudflare caching is a future option |
 | Update channel | Follow **gigpkgs-unstable**, like dotfiles follows gigpkgs |
 | GitHub Action | Willing to attempt (Phase 4) |
@@ -199,10 +202,10 @@ this repo.
 
 ## 7. Open items
 
-1. **Port.** The DDNS target is believed to be spacedock `:8082`, but
-   kottonmouth's `dev:host` also binds `0.0.0.0:8082` for the interim
-   avecmoi.app domain. Pick the front-door port, and forward **public 443** to
-   it so URLs carry no `:port`.
+1. **Router forward.** Point public **443 → spacedock:1776**, replacing the
+   old 8082 forward, so URLs carry no `:port`. Open 1776 in spacedock's
+   firewall. ACME HTTP-01 would also need public 80; DNS-01 (item 2) avoids
+   that.
 2. **DNS host for giglab.dev**, which decides the ACME DNS-01 provider for the
    wildcard demo cert. (giglab.dev resolved to the home IP on 2026-10-20.)
 3. **Demo-site convention.** Pick a fixed `demo.giglab.dev` → one port, or
