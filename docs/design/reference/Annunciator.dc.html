@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>giglab.dev · Annunciator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/giglab/tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,700;1,400&amp;family=Gentium+Plus:ital,wght@0,400;0,700;1,400&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:var(--signal)}a:hover{color:var(--ink)}
+button{font:inherit}
+button:focus-visible,a:focus-visible{outline:3px solid var(--beacon);outline-offset:3px}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="background: var(--void); color: var(--ink); font-family: var(--font-text); min-height: 100vh; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px;">
+
+  <header style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <div style="flex: 999 1 560px; min-width: 0; background: var(--signal); color: var(--on-signal); border-radius: 2px; padding: 24px 32px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; min-height: 220px; box-sizing: border-box;">
+      <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em;">ANNUNCIATOR · PANEL 01 · FIRST LIGHT</span>
+      <h1 style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 112px; line-height: 0.9; letter-spacing: -0.02em;">giglab.dev</h1>
+    </div>
+    <div style="flex: 1 1 280px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+      <div style="background: var(--beacon); color: var(--on-signal); border-radius: 2px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-height: 106px; box-sizing: border-box;">
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;">IN FLIGHT</span>
+        <span style="font-family: var(--font-mono); font-size: 40px; font-weight: 600; line-height: 1;">{{inFlight}}</span>
+      </div>
+      <div style="background: var(--ink); color: var(--void); border-radius: 2px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; min-height: 106px; box-sizing: border-box;">
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;">ON THE BOARD</span>
+        <span style="font-family: var(--font-mono); font-size: 40px; font-weight: 600; line-height: 1;">{{total}}</span>
+      </div>
+      <div style="grid-column: span 2; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; padding: 16px; box-sizing: border-box;">
+        <p style="margin: 0; font-family: var(--font-display); font-style: italic; font-size: 22px; line-height: 30px; color: var(--signal);">Projects in flight, the fleet on watch.</p>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="Primary" style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <a href="#board" style="flex: 1 1 160px; min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em;">01 · BOARD</a>
+    <a href="#ribbon" style="flex: 1 1 160px; min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em;">02 · STATUS</a>
+    <a href="#readout" style="flex: 1 1 160px; min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em;">03 · WRITE-UPS</a>
+    <a href="https://github.com/gignsky" style="flex: 1 1 160px; min-height: 48px; display: flex; align-items: center; padding: 0 16px; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; color: var(--ink); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em;">04 · GITHUB ↗</a>
+  </nav>
+
+  <main style="display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch;">
+    <section id="board" aria-labelledby="board-h" style="flex: 999 1 640px; min-width: 0; background: var(--hull); border: 1px solid var(--hairline); border-radius: 2px; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;">
+        <h2 id="board-h" style="margin: 0; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);">THE BOARD · PRESS A TILE FOR ITS READOUT</h2>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);">LIT = UNDER WAY · DARK = CHARTED</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+        <sc-for list="{{tiles}}" as="t" hint-placeholder-count="7">
+          <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="text-align: left; cursor: pointer; min-height: 148px; padding: 16px; border-radius: 2px; border: 1px solid {{t.edge}}; background: {{t.bg}}; color: {{t.fg}}; outline: {{t.ring}}; outline-offset: 3px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;">{{t.code}}</span>
+            <span style="font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 26px;">{{t.name}}</span>
+            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;">{{t.glyph}} {{t.word}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <aside id="readout" aria-live="polite" aria-labelledby="readout-h" style="flex: 1 1 320px; min-width: 0; background: var(--panel); border: 1px solid var(--muted); border-radius: 2px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+      <h2 id="readout-h" style="margin: 0; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);">READOUT · {{sel.code}}</h2>
+      <p style="margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 44px;">{{sel.name}}</p>
+      <p style="margin: 0; font-size: 18px; line-height: 28px; color: var(--muted);">{{sel.blurb}}</p>
+      <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; color: {{sel.tone}};">{{sel.glyph}} {{sel.word}}</span>
+      <dl style="margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; border-top: 1px solid var(--hairline); padding-top: 16px; font-family: var(--font-mono); font-size: 13px;">
+        <dt style="color: var(--muted);">LAST PUSH</dt><dd style="margin: 0; color: var(--beacon);">[live]</dd>
+        <dt style="color: var(--muted);">ROLLS</dt><dd style="margin: 0; color: var(--beacon);">[live]</dd>
+        <dt style="color: var(--muted);">RELEASE</dt><dd style="margin: 0; color: var(--beacon);">[live]</dd>
+      </dl>
+      <p style="margin: 0; font-style: italic; font-size: 15px; line-height: 22px; color: var(--muted);">Live readings arrive when the board comes online.</p>
+    </aside>
+  </main>
+
+  <section id="ribbon" aria-labelledby="ribbon-h" style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <h2 id="ribbon-h" style="flex: 0 0 auto; margin: 0; min-height: 56px; display: flex; align-items: center; padding: 0 16px; background: var(--ink); color: var(--void); border-radius: 2px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em;">FLEET</h2>
+    <sc-for list="{{hosts}}" as="h" hint-placeholder-count="2">
+      <div style="flex: 1 1 240px; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 16px; background: var(--hull); border: 1px solid var(--hairline); border-radius: 2px;">
+        <span style="font-family: var(--font-mono); font-size: 14px; font-weight: 500;">{{h.name}}</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);">○ AWAITING SIGNAL</span>
+      </div>
+    </sc-for>
+    <div style="flex: 1 1 240px; min-height: 56px; display: flex; align-items: center; padding: 0 16px; border: 1px dashed var(--muted); border-radius: 2px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);">/STATUS COMES ONLINE NEXT</div>
+  </section>
+
+  <footer style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 8px 4px; font-family: var(--font-mono); font-size: 12px; color: var(--muted);">
+    <span>giglab.dev · Maxwell Rupp · served from spacedock</span>
+    <span>Nix · Astro · Rust · Typst</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: 'GP-01' };
+  }
+  renderVals() {
+    const S = {
+      flight: { glyph: '◆', word: 'IN FLIGHT', tone: 'var(--beacon)', lit: 'var(--beacon)' },
+      paused: { glyph: '▲', word: 'PAUSED', tone: 'var(--signal)', lit: 'var(--signal)' },
+      charted: { glyph: '○', word: 'CHARTED', tone: 'var(--muted)', lit: null }
+    };
+    const list = [
+      { code: 'GP-01', name: 'gigpkgs', blurb: 'A Nix package set, and inputMan to feed it.', s: 'flight' },
+      { code: 'RF-02', name: 'roll-flow', blurb: 'A gated branch workflow, as a Rust TUI.', s: 'flight' },
+      { code: 'GV-03', name: 'gigvim', blurb: 'Neovim, configured through nvf.', s: 'flight' },
+      { code: 'SC-04', name: 'ScribbyDaScribe', blurb: 'Discord voice calls into per-speaker transcripts.', s: 'flight' },
+      { code: 'GL-05', name: 'giglab.dev', blurb: 'This board, served from a container on spacedock.', s: 'flight' },
+      { code: 'PA-06', name: 'Playarr', blurb: 'One house for the media stack.', s: 'paused' },
+      { code: 'RZ-07', name: 'A rasterizer from scratch', blurb: 'Rust, a CPU, and first principles.', s: 'charted' }
+    ];
+    const picked = this.state.picked;
+    const tiles = list.map((p) => {
+      const st = S[p.s];
+      const on = p.code === picked;
+      return {
+        ...p, ...st,
+        bg: st.lit ?? 'var(--panel)',
+        fg: st.lit ? 'var(--on-signal)' : 'var(--ink)',
+        edge: st.lit ?? 'var(--muted)',
+        ring: on ? '3px solid var(--ink)' : 'none',
+        pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ picked: p.code })
+      };
+    });
+    const sel = tiles.find((t) => t.code === picked) ?? tiles[0];
+    return {
+      theme: this.props.theme ?? 'dark',
+      tiles,
+      sel,
+      total: String(list.length).padStart(2, '0'),
+      inFlight: String(list.filter((p) => p.s === 'flight').length).padStart(2, '0'),
+      hosts: [{ name: 'spacedock' }, { name: 'memory-alpha' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

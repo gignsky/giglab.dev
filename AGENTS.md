@@ -13,8 +13,12 @@ it, and spacedock runs it.
 
 **Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before any change.** It
 holds the rulings, the open items and the phase plan. The repo is at
-**Phase 0 (plan only, no code yet)**. Code design and styling are undecided,
-so do not invent a visual direction unasked.
+**Phase 0 (plan only, no code yet)**. The **visual direction is chosen**:
+build from [`docs/design/`](docs/design/). It holds the landing-page handoff spec
+(`landing-annunciator.md`), the design-system tokens (`tokens.json`, both
+themes) and the canvas artboard's source (`reference/`, structure only, never
+shipped). Gentium is the site's typeface and IBM Plex Mono is for machine
+readouts only. Use only tokens; invent no new colours, faces or radii.
 
 ## Layout (planned — create as phases land)
 
