@@ -1,0 +1,8 @@
+# Astro / Node (site/)
+site/node_modules/
+site/dist/
+site/.astro/
+
+# Nix
+result
+result-*

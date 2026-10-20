@@ -1,0 +1,8 @@
+{
+  "code": "SC-04",
+  "title": "ScribbyDaScribe",
+  "summary": "Discord voice calls into per-speaker transcripts.",
+  "status": "active",
+  "repo": "gignsky/scribbydascribe",
+  "visibility": "public"
+}

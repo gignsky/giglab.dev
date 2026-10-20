@@ -1,0 +1,48 @@
+---
+interface Props {
+  kicker: string;
+}
+
+const { kicker } = Astro.props;
+---
+
+<div class="name-slab">
+  <span class="kicker">{kicker}</span>
+  <h1>giglab.dev</h1>
+</div>
+
+<style>
+  .name-slab {
+    flex: 999 1 560px;
+    min-width: 0;
+    min-height: 220px;
+    box-sizing: border-box;
+    background: var(--signal);
+    color: var(--on-signal);
+    border-radius: var(--radius-sm);
+    padding-block: var(--space-6);
+    padding-inline: clamp(var(--space-4), 4vw, var(--space-10, 40px));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(56px, 11vw, 112px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+
+</style>

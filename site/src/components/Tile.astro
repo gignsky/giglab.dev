@@ -1,0 +1,73 @@
+---
+import { statusStyle, type ProjectStatus } from '../lib/status';
+
+interface Props {
+  slug: string;
+  code: string;
+  title: string;
+  status: Exclude<ProjectStatus, 'archived'>;
+}
+
+const { slug, code, title, status } = Astro.props;
+const style = statusStyle(status);
+---
+
+<a
+  class="tile"
+  href={`#readout-${slug}`}
+  data-slug={slug}
+  style={`--tile-bg: ${style.bg}; --tile-fg: ${style.fg}; --tile-border: ${style.border};`}
+>
+  <span class="code">{code}</span>
+  <span class="title">{title}</span>
+  <span class="status">{style.glyph} {style.word}</span>
+</a>
+
+<style>
+  .tile {
+    text-decoration: none;
+    cursor: pointer;
+    text-align: left;
+    min-height: 148px;
+    box-sizing: border-box;
+    padding: var(--space-4);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--tile-border);
+    background: var(--tile-bg);
+    color: var(--tile-fg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-4);
+    outline-offset: 3px;
+  }
+
+  .tile:hover {
+    border-color: var(--ink);
+  }
+
+  .tile.is-selected {
+    outline: 3px solid var(--ink);
+  }
+
+  .tile.is-selected:focus-visible {
+    outline-color: var(--beacon);
+  }
+
+  .code,
+  .status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 26px;
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -1,0 +1,8 @@
+{
+  "code": "RF-02",
+  "title": "roll-flow",
+  "summary": "A gated branch workflow, as a Rust TUI.",
+  "status": "active",
+  "repo": "gignsky/roll-flow",
+  "visibility": "public"
+}
