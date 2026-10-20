@@ -29,6 +29,7 @@
             pkgs.nodejs_22
             pkgs.git
             pkgs.typst
+            pkgs.just
             # Branch workflow (roll/* -> rolling -> master). Gates live in
             # .roll-flow.toml and expect node/npm from this shell.
             pkgs.roll-flow
@@ -41,6 +42,14 @@
             echo "  npm --prefix site run dev   -- dev server on http://localhost:4321"
             echo "  npm --prefix site run build -- static build into site/dist/"
             echo "  npm --prefix site run preview -- serve the production build"
+            echo
+            echo "  just                    -- list recipes (justfile)"
+            echo "  just dev                -- dev server, reachable on the LAN by default (opens a firewall port for the run)"
+            echo "  just dev 127.0.0.1      -- dev server, restricted to localhost"
+            echo "  just build              -- static build into site/dist/"
+            echo "  just preview            -- serve the production build, reachable on the LAN by default"
+            echo "  just check              -- astro check"
+            echo "  just clean              -- remove gitignored build output + content-layer cache"
             echo
             echo "  rf status        -- roll-flow: where this branch sits"
             echo "  rf verify        -- run the gates for the next step, no merge"
