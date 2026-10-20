@@ -167,8 +167,9 @@ this repo.
 
 ## 5. Front door — spacedock host
 
-- The **DDNS updater on memory-alpha** keeps `giglab.dev` pointed at the home
-  IP. The router forwards public **443** to spacedock **`:1776`**, the
+- The **DDNS updater on memory-alpha** keeps `giglab.dev` **and every
+  `*.giglab.dev`** pointed at the home IP (wildcard confirmed resolving
+  2026-10-20; DNS carries no port, the router forward supplies it). The router forwards public **443** to spacedock **`:1776`**, the
   front-door port. There is **no Cloudflare tunnel**.
 - A **host-level reverse proxy** owns `:1776` (TLS). nginx is already enabled on
   spacedock. It routes by `Host`:
@@ -194,6 +195,7 @@ this repo.
 | Purpose | Auto-updating board of all current and upcoming projects with statuses; Typst for rich formatting |
 | Hosting | Container on spacedock |
 | Way in | DDNS (memory-alpha) → spacedock, no tunnel; giglab.dev also used for ad-hoc demo sites on spacedock |
+| DNS | DDNS updater sets apex + wildcard `*.giglab.dev` → home IP |
 | Front-door port | **1776** on spacedock (host nginx, TLS); router forwards public 443 → 1776 |
 | Downtime | Accept for now; Cloudflare caching is a future option |
 | Update channel | Follow **gigpkgs-unstable**, like dotfiles follows gigpkgs |
@@ -207,7 +209,7 @@ this repo.
    firewall. ACME HTTP-01 would also need public 80; DNS-01 (item 2) avoids
    that.
 2. **DNS host for giglab.dev**, which decides the ACME DNS-01 provider for the
-   wildcard demo cert. (giglab.dev resolved to the home IP on 2026-10-20.)
+   wildcard demo cert. (The DNS-side wildcard is in place; the cert is not.)
 3. **Demo-site convention.** Pick a fixed `demo.giglab.dev` → one port, or
    `<name>.giglab.dev` from a small attrset in dotfiles.
 4. **Typst route** (§3.2).
