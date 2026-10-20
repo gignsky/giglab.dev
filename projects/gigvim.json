@@ -1,0 +1,8 @@
+{
+  "code": "GV-03",
+  "title": "gigvim",
+  "summary": "Neovim, configured through nvf.",
+  "status": "active",
+  "repo": "gignsky/gigvim",
+  "visibility": "public"
+}

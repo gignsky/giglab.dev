@@ -1,0 +1,7 @@
+{
+  "code": "RZ-07",
+  "title": "A rasterizer from scratch",
+  "summary": "Rust, a CPU, and first principles.",
+  "status": "planned",
+  "visibility": "public"
+}

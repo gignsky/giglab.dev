@@ -1,0 +1,8 @@
+{
+  "code": "GL-05",
+  "title": "giglab.dev",
+  "summary": "This board, served from a container on spacedock.",
+  "status": "active",
+  "repo": "gignsky/giglab.dev",
+  "visibility": "public"
+}

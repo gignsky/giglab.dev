@@ -12,37 +12,59 @@ gigpkgs' inputMan**: this flake defines its own container, gigpkgs discovers
 it, and spacedock runs it.
 
 **Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before any change.** It
-holds the rulings, the open items and the phase plan. The repo is at
-**Phase 0 (plan only, no code yet)**. The **visual direction is chosen**:
-build from [`docs/design/`](docs/design/). It holds the landing-page handoff spec
+holds the rulings, the open items and the phase plan. The repo is in
+**Phase 1**: `flake.nix`, `site/` (Astro, the Annunciator landing page) and a
+provisional `projects/` registry have landed; the Typst route (§3.2) and the
+rest of Phase 1's deliverables are still open. The **visual direction is
+chosen**: build from [`docs/design/`](docs/design/). It holds the landing-page handoff spec
 (`landing-annunciator.md`), the design-system tokens (`tokens.json`, both
 themes) and the canvas artboard's source (`reference/`, structure only, never
 shipped). Gentium is the site's typeface and IBM Plex Mono is for machine
 readouts only. Use only tokens; invent no new colours, faces or radii.
 
-## Layout (planned — create as phases land)
+## Layout (keep this table true as phases land)
 
 | Path | What |
 |---|---|
-| `site/` | Astro, **static output** (no SSR adapter) |
-| `projects/` | Project registry, the source of truth for what is shown; Typst write-ups |
-| `server/` | Rust binary: serves `dist/`, `/api/*`, polls GitHub / gigpkgs news / Gatus into SQLite |
-| `nix/container-config.nix` | The container's fill-in items (dot-spacedock `lib/container-config` pattern) |
-| `flake.nix` | `packages.{site,server,image}`, `containers.<sys>.giglab`, `devShells.default` |
-| `docs/` | Architecture and runbooks |
+| `site/` | Astro, **static output** (no SSR adapter). The Annunciator landing page lives here. |
+| `projects/` | Project registry (**provisional** JSON-per-project shape; see `projects/README.md` and ARCHITECTURE.md §7 item 5), the source of truth for what is shown. No Typst write-ups yet. |
+| `server/` | *(Phase 2, not yet created)* Rust binary: serves `dist/`, `/api/*`, polls GitHub / gigpkgs news / Gatus into SQLite |
+| `nix/container-config.nix` | *(Phase 2, not yet created)* The container's fill-in items (dot-spacedock `lib/container-config` pattern) |
+| `flake.nix` | `devShells.default` (Node, typst, just, roll-flow). `packages.{site,server,image}` and `containers.<sys>.giglab` are Phase 2. |
+| `justfile` | Recipes for running the site locally (`dev`, `build`, `preview`, `check`, `clean`); run `just` inside `nix develop` to list them |
+| `docs/` | Architecture, design handoff and runbooks |
 
-## Commands (planned — keep this table true as they come to exist)
+## Commands (keep this table true as they come to exist)
 
 ```sh
-nix develop                         # Node, cargo, typst, roll-flow
+nix develop                         # Node, typst, just, roll-flow (cargo lands with server/, Phase 2)
+npm --prefix site install           # install dependencies
 npm --prefix site run dev           # Astro dev server
-cargo run --manifest-path server/Cargo.toml
-nix build .#image                   # OCI image tarball
-nix eval .#containers.x86_64-linux.giglab   # inspect the container spec
+npm --prefix site run build         # static build into site/dist/
+npm --prefix site run check         # astro check (type-checks .astro files)
+
+just                                 # list recipes (justfile)
+just dev                             # dev server, reachable on the LAN by default
+just dev 127.0.0.1                   # dev server, restricted to localhost (recipe args are positional)
+just build                           # static build into site/dist/
+just preview [host] [port]           # serve the production build (same host/port args as dev)
+just check                           # astro check
+just clean                           # remove gitignored build output + the content-layer cache
+
+# Not yet real -- land with their phase:
+cargo run --manifest-path server/Cargo.toml   # Phase 2
+nix build .#image                   # OCI image tarball -- Phase 2
+nix eval .#containers.x86_64-linux.giglab   # inspect the container spec -- Phase 2
 ```
 
 For the Astro dev server, use background mode:
 `astro dev --background`, then `astro dev stop | status | logs`.
+
+`just dev`/`just preview` default to `host=0.0.0.0` (LAN-reachable) and open the
+port in the host firewall for just that run, reverting it on exit -- mirrors
+kottonmouth's `roll/3-1015-open-port-for-local-testing`. This is a per-invocation
+dev convenience, not a host fact: it never touches persistent firewall config,
+which still belongs in `.dotfiles` per the ground rule below.
 
 ## Ground rules
 

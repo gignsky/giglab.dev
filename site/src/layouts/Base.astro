@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Mirrors the live system preference onto data-theme, including changes
+      // made while the page is open (docs/design/landing-annunciator.md).
+      const mq = matchMedia('(prefers-color-scheme: light)');
+      const setTheme = () => (document.documentElement.dataset.theme = mq.matches ? 'light' : 'dark');
+      setTheme();
+      mq.addEventListener('change', setTheme);
+    </script>
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,700;1,400&family=Gentium+Plus:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

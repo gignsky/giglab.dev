@@ -50,10 +50,10 @@ roll_to_rolling_gates = [
     # No secrets in tracked files: private keys, sops age keys, GitHub tokens.
     "! git grep -nIE 'BEGIN [A-Z ]*PRIVATE KEY|AGE-SECRET-KEY-1[0-9A-Z]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}' -- ':!.roll-flow.toml'",
 
-    # ── ⚠ Phase 1: flake + Astro site -- UNCOMMENT when flake.nix / site/ land ──
-    # "nix flake check --no-build",
-    # "npm --prefix site ci",
-    # "npm --prefix site run build",
+    # ── Phase 1: flake + Astro site (flake.nix / site/ landed 2026-10-20) ──
+    "nix flake check --no-build",
+    "npm --prefix site ci",
+    "npm --prefix site run build",
 
     # ── ⚠ Phase 2: Rust server -- UNCOMMENT when server/ lands ──
     # "cargo fmt --manifest-path server/Cargo.toml --all --check",
@@ -72,13 +72,14 @@ rolling_to_main_gates = [
     "test -f AGENTS.md && test \"$(readlink CLAUDE.md)\" = AGENTS.md",
     "! git grep -nIE 'BEGIN [A-Z ]*PRIVATE KEY|AGE-SECRET-KEY-1[0-9A-Z]{20,}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}' -- ':!.roll-flow.toml'",
 
-    # ── ⚠ Phase 1: flake + Astro site -- UNCOMMENT when flake.nix / site/ land ──
-    # "nix flake check --print-build-logs",
-    # "npm --prefix site ci",
-    # "npx --prefix site astro check",
-    # "npm --prefix site run build",
-    # "test -f site/dist/index.html",
-    # The Nix-built site (Typst rendered in) has a front page.
+    # ── Phase 1: flake + Astro site (flake.nix / site/ landed 2026-10-20) ──
+    "nix flake check --print-build-logs",
+    "npm --prefix site ci",
+    "npm --prefix site run check",
+    "npm --prefix site run build",
+    "test -f site/dist/index.html",
+    # packages.site / the Nix-built site doesn't exist yet (Phase 2) -- left
+    # commented until then.
     # "test -f \"$(nix build .#site --no-link --print-out-paths)/index.html\"",
 
     # ── ⚠ Phase 2: Rust server -- UNCOMMENT when server/ lands ──
