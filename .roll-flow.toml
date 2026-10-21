@@ -78,9 +78,8 @@ rolling_to_main_gates = [
     "npm --prefix site run check",
     "npm --prefix site run build",
     "test -f site/dist/index.html",
-    # packages.site / the Nix-built site doesn't exist yet (Phase 2) -- left
-    # commented until then.
-    # "test -f \"$(nix build .#site --no-link --print-out-paths)/index.html\"",
+    # The Nix-built site (packages.site landed 2026-10-20, ahead of Phase 2).
+    "test -f \"$(nix build .#site --no-link --print-out-paths)/index.html\"",
 
     # ── ⚠ Phase 2: Rust server -- UNCOMMENT when server/ lands ──
     # "cargo update --manifest-path server/Cargo.toml --workspace --locked",
@@ -89,8 +88,12 @@ rolling_to_main_gates = [
     # "cargo build --manifest-path server/Cargo.toml --locked",
     # "cargo test --manifest-path server/Cargo.toml --locked",
 
-    # ── ⚠ Phase 2: image + container spec -- UNCOMMENT when the image / spec land ──
-    # "nix build .#image --no-link --print-build-logs",
+    # packages.image landed 2026-10-20 (static-web-server over packages.site,
+    # :8800 -- an interim image for dotfiles to reference directly, ahead of
+    # the Rust server). containers.<sys>.giglab / nix/container-config.nix --
+    # the inputMan-discovery format -- still don't exist; those checks stay
+    # commented until that lands.
+    "nix build .#image --no-link --print-build-logs",
     # "nix eval --json .#containers.x86_64-linux.giglab > /dev/null",
     # Ground rule: the container publishes on loopback only (host nginx is the door).
     # "nix eval --json .#containers.x86_64-linux.giglab.ports | grep -q '127.0.0.1:'",
