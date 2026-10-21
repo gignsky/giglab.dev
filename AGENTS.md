@@ -29,8 +29,8 @@ readouts only. Use only tokens; invent no new colours, faces or radii.
 | `site/` | Astro, **static output** (no SSR adapter). The Annunciator landing page lives here. |
 | `projects/` | Project registry (**provisional** JSON-per-project shape; see `projects/README.md` and ARCHITECTURE.md §7 item 5), the source of truth for what is shown. No Typst write-ups yet. |
 | `server/` | *(Phase 2, not yet created)* Rust binary: serves `dist/`, `/api/*`, polls GitHub / gigpkgs news / Gatus into SQLite |
-| `nix/container-config.nix` | *(Phase 2, not yet created)* The container's fill-in items (dot-spacedock `lib/container-config` pattern) |
-| `flake.nix` | `devShells.default` (Node, typst, just, roll-flow). `packages.{site,server,image}` and `containers.<sys>.giglab` are Phase 2. |
+| `nix/container-config.nix` | *(Phase 2, not yet created)* The container's fill-in items (dot-spacedock `lib/container-config` pattern); `containers.<sys>.giglab` (for inputMan discovery) lands with it |
+| `flake.nix` | `devShells.default` (Node, typst, just, roll-flow); `packages.site` (Nix-built Astro output) and `packages.image` (OCI image, static-web-server over `packages.site` -- an interim stand-in for the Rust server) |
 | `justfile` | Recipes for running the site locally (`dev`, `build`, `preview`, `check`, `clean`); run `just` inside `nix develop` to list them |
 | `docs/` | Architecture, design handoff and runbooks |
 
@@ -51,10 +51,13 @@ just preview [host] [port]           # serve the production build (same host/por
 just check                           # astro check
 just clean                           # remove gitignored build output + the content-layer cache
 
+nix build .#site                    # Nix-built static site (dist/ as a store path)
+nix build .#image                   # OCI image (static-web-server over .#site, :8800)
+podman load -i result && podman run --rm -p 8800:8800 giglab-dev:latest   # smoke-test it
+
 # Not yet real -- land with their phase:
 cargo run --manifest-path server/Cargo.toml   # Phase 2
-nix build .#image                   # OCI image tarball -- Phase 2
-nix eval .#containers.x86_64-linux.giglab   # inspect the container spec -- Phase 2
+nix eval .#containers.x86_64-linux.giglab   # inspect the container spec -- Phase 2 (inputMan discovery)
 ```
 
 For the Astro dev server, use background mode:
