@@ -6,11 +6,10 @@
   # `packages.site`/`packages.image` are an early, interim slice of Phase 2:
   # the image just wraps the static build in static-web-server. There is no
   # Rust keeper, no /api, no SQLite poller yet -- no server/ exists. When it
-  # does, this image is expected to be replaced by one built around it, and
-  # nix/container-config.nix + containers.<sys>.giglab (the dot-spacedock
-  # lib/container-config pattern, for inputMan discovery) still don't exist;
-  # dotfiles references this flake's packages.image directly for now, the
-  # same way it references avec-moi/kottonmouth (docs/ARCHITECTURE.md §8).
+  # does, this image is expected to be replaced by one built around it.
+  # nix/container-config.nix (the dot-spacedock lib/container-config pattern)
+  # holds the container's fill-in items and feeds containers.<sys>.giglab,
+  # which inputMan will discover (docs/ARCHITECTURE.md §3.5, §3.6).
   description = "giglab.dev -- Astro, fully static, Rust keeper to come";
 
   inputs = {
@@ -30,12 +29,16 @@
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (pkgs) lib;
 
+        # The container's fill-in items (nix/container-config.nix). `version`
+        # comes from site/package.json and tags the image.
+        containerConfig = import ./nix/container-config.nix { inherit lib; };
+
         # The Astro static build. Also needs projects/ (the registry) and
         # docs/design/tokens.json (site/scripts/build-tokens.mjs reads it) --
         # both outside site/, so the source tree is the three of them together.
         site = pkgs.buildNpmPackage {
           pname = "giglab-dev-site";
-          version = "0.1.0";
+          inherit (containerConfig) version;
           src = lib.fileset.toSource {
             root = ./.;
             fileset = lib.fileset.unions [
@@ -60,8 +63,8 @@
         # static-web-server (Rust, matching the footer's own stack claim) --
         # a placeholder for the real Rust server (Phase 2).
         image = pkgs.dockerTools.buildLayeredImage {
-          name = "giglab-dev";
-          tag = "latest";
+          name = containerConfig.image;
+          tag = containerConfig.version;
           contents = [ pkgs.cacert ];
           config = {
             Entrypoint = [
@@ -81,6 +84,25 @@
         packages.site = site;
         packages.image = image;
         packages.default = image;
+
+        # What inputMan discovers. `service` is the strict subset that
+        # virtualisation.oci-containers.containers.<name> accepts (no
+        # version, no podman* strings), so a consumer can use it verbatim:
+        #   virtualisation.oci-containers.containers.giglab = giglab.service
+        # Hosts add environmentFiles / volumes themselves (host facts).
+        containers.giglab = containerConfig // {
+          imageFile = image;
+          service = {
+            imageFile = image;
+            image = "${image.imageName}:${image.imageTag}";
+            inherit (containerConfig)
+              autoStart
+              ports
+              environment
+              extraOptions
+              ;
+          };
+        };
 
         devShells.default = pkgs.mkShell {
           packages = [

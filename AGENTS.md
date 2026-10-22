@@ -29,7 +29,7 @@ readouts only. Use only tokens; invent no new colours, faces or radii.
 | `site/` | Astro, **static output** (no SSR adapter). The Annunciator landing page lives here. |
 | `projects/` | Project registry (**provisional** JSON-per-project shape; see `projects/README.md` and ARCHITECTURE.md §7 item 5), the source of truth for what is shown. No Typst write-ups yet. |
 | `server/` | *(Phase 2, not yet created)* Rust binary: serves `dist/`, `/api/*`, polls GitHub / gigpkgs news / Gatus into SQLite |
-| `nix/container-config.nix` | *(Phase 2, not yet created)* The container's fill-in items (dot-spacedock `lib/container-config` pattern); `containers.<sys>.giglab` (for inputMan discovery) lands with it |
+| `nix/container-config.nix` | The container's fill-in items (dot-spacedock `lib/container-config` pattern); the flake builds the image from its `image`+`version` and exposes `containers.<sys>.giglab` (for inputMan discovery) from it |
 | `flake.nix` | `devShells.default` (Node, typst, just, roll-flow); `packages.site` (Nix-built Astro output) and `packages.image` (OCI image, static-web-server over `packages.site` -- an interim stand-in for the Rust server) |
 | `justfile` | Recipes for running the site locally (`dev`, `build`, `preview`, `check`, `clean`); run `just` inside `nix develop` to list them |
 | `docs/` | Architecture, design handoff and runbooks |
@@ -53,11 +53,11 @@ just clean                           # remove gitignored build output + the cont
 
 nix build .#site                    # Nix-built static site (dist/ as a store path)
 nix build .#image                   # OCI image (static-web-server over .#site, :8800)
-podman load -i result && podman run --rm -p 8800:8800 giglab-dev:latest   # smoke-test it
+nix eval .#containers.x86_64-linux.giglab.service --apply builtins.attrNames   # the container spec inputMan discovers
+podman load -i result && podman run --rm -p 8800:8800 giglab-dev:0.1.0   # smoke-test it (tag = site/package.json version)
 
 # Not yet real -- land with their phase:
 cargo run --manifest-path server/Cargo.toml   # Phase 2
-nix eval .#containers.x86_64-linux.giglab   # inspect the container spec -- Phase 2 (inputMan discovery)
 ```
 
 For the Astro dev server, use background mode:
