@@ -9,3 +9,4 @@ site/.astro/
 # Nix
 result
 result-*
+/.direnv
