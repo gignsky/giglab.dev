@@ -159,7 +159,7 @@ attrset, as `podman-functions.nix` did in dot-spacedock.
 | `packages.<sys>.server` | The Rust binary. Not yet built (Phase 2). |
 | `packages.<sys>.image` | `dockerTools.buildLayeredImage` of server + site. **An interim version landed 2026-10-20**: static-web-server over `packages.site` only, no server/ to wrap yet -- dotfiles references it directly (like avec-moi/kottonmouth) until the real one replaces it. |
 | `packages.<sys>.default` | `image` |
-| `containers.<sys>.giglab` | The container spec (§3.5); **this is what inputMan discovers**. Not yet built -- inputMan container discovery doesn't exist in gigpkgs yet either, so there's nothing to discover it. |
+| `containers.<sys>.giglab` | The container spec (§3.5) plus `imageFile` and a `service` attrset (the strict subset `oci-containers.containers.<name>` accepts); **this is what inputMan discovers**. **Landed 2026-10-22**; inputMan container discovery in gigpkgs is still to come. |
 | `nixosModules.giglab` | Optional bare-systemd alternative |
 | `devShells.default` | Node, cargo, typst, roll-flow (council pattern). Cargo lands with `server/`; `just` is already in. |
 
